@@ -1,0 +1,89 @@
+{
+  "date": "2026-03-17T15:03:22.643116",
+  "val_samples": 50,
+  "methods": {
+    "qwen2.5-3b": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.9037061738967895,
+        "f1_std": 0.03486315390927413
+      },
+      "perplexity": {
+        "perplexity": 1.212403476059442,
+        "avg_loss": 0.19260473328700997
+      },
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.86,
+        "error_cat_present": 1.0,
+        "items_count_ok": 0.96,
+        "has_answers": 0.96,
+        "composite": 0.9559999999999998
+      }
+    },
+    "smollm3-3b": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.9033116734027863,
+        "f1_std": 0.027665374318629643
+      },
+      "perplexity": {
+        "perplexity": 1.2259018901842538,
+        "avg_loss": 0.20367680999237098
+      },
+      "task_relevance": {
+        "json_valid": 0.98,
+        "task_type_match": 0.84,
+        "error_cat_present": 0.98,
+        "items_count_ok": 0.88,
+        "has_answers": 0.94,
+        "composite": 0.9239999999999998
+      }
+    },
+    "phi3.5-mini": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.8780173349380493,
+        "f1_std": 0.025861479185639604
+      },
+      "perplexity": {
+        "perplexity": 4.71937355852675,
+        "avg_loss": 1.5516760701381869
+      },
+      "task_relevance": {
+        "json_valid": 0.88,
+        "task_type_match": 0.88,
+        "error_cat_present": 0.88,
+        "items_count_ok": 0.02,
+        "has_answers": 0.86,
+        "composite": 0.704
+      }
+    },
+    "baseline_fib": {
+      "type": "baseline",
+      "bertscore": null,
+      "perplexity": null,
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.0,
+        "error_cat_present": 0.94,
+        "items_count_ok": 0.94,
+        "has_answers": 0.94,
+        "composite": 0.764
+      }
+    },
+    "baseline_recon": {
+      "type": "baseline",
+      "bertscore": null,
+      "perplexity": null,
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.0,
+        "error_cat_present": 0.54,
+        "items_count_ok": 0.54,
+        "has_answers": 0.54,
+        "composite": 0.524
+      }
+    }
+  }
+}

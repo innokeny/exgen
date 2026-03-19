@@ -1,0 +1,79 @@
+{
+  "date": "2026-03-13T06:56:34.133241",
+  "method": "LoRA fp16 (no quantization)",
+  "config": {
+    "lora_rank": 64,
+    "lora_alpha": 128,
+    "epochs": 3,
+    "effective_bs": 16,
+    "lr": 0.0002,
+    "max_seq_length": 2048,
+    "train_n": 2700,
+    "val_n": 300
+  },
+  "models": {
+    "qwen2.5-3b": {
+      "base": "Qwen/Qwen2.5-3B-Instruct",
+      "adapter_dir": "./adapters/qwen2.5-3b",
+      "bertscore": {
+        "f1": 0.9037062001228332,
+        "f1_std": 0.03486314146826873
+      },
+      "perplexity": {
+        "perplexity": 1.2130750503341916,
+        "avg_loss": 0.19315849971668855
+      },
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.86,
+        "error_cat_present": 1.0,
+        "items_count_ok": 0.96,
+        "has_answers": 0.96,
+        "composite": 0.9559999999999998,
+        "_total": 50
+      }
+    },
+    "smollm3-3b": {
+      "base": "HuggingFaceTB/SmolLM3-3B",
+      "adapter_dir": "./adapters/smollm3-3b",
+      "bertscore": {
+        "f1": 0.9033117032051087,
+        "f1_std": 0.027665372710525427
+      },
+      "perplexity": {
+        "perplexity": 1.2253580523848653,
+        "avg_loss": 0.2032330889500882
+      },
+      "task_relevance": {
+        "json_valid": 0.98,
+        "task_type_match": 0.84,
+        "error_cat_present": 0.98,
+        "items_count_ok": 0.88,
+        "has_answers": 0.94,
+        "composite": 0.9239999999999998,
+        "_total": 50
+      }
+    },
+    "phi3.5-mini": {
+      "base": "microsoft/Phi-3.5-mini-instruct",
+      "adapter_dir": "./adapters/phi3.5-mini",
+      "bertscore": {
+        "f1": 0.8798869717121124,
+        "f1_std": 0.02039405661567887
+      },
+      "perplexity": {
+        "perplexity": 5.291435462892073,
+        "avg_loss": 1.6660895631042285
+      },
+      "task_relevance": {
+        "json_valid": 0.94,
+        "task_type_match": 0.94,
+        "error_cat_present": 0.94,
+        "items_count_ok": 0.02,
+        "has_answers": 0.94,
+        "composite": 0.756,
+        "_total": 50
+      }
+    }
+  }
+}
