@@ -1,0 +1,62 @@
+# SAYIT-integrated deployment — joins the existing SAYIT docker network so the
+# backend can reach the generator at http://generator:8000 without exposing a
+# host port to the public internet.
+#
+# Prerequisite: SAYIT's compose stack must be up so the network exists. The
+# default name `sayit_default` matches a stack started from a folder named
+# `sayit/` — override `SAYIT_NETWORK_NAME` if your deployment uses something
+# else.
+#
+# For independent / dev runs use docker-compose.standalone.yml instead.
+services:
+  generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sayit-exercise-generator:latest
+    container_name: sayit-exgen
+    hostname: generator
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      MODEL_NAME: ${MODEL_NAME:-qwen2.5-3b}
+      ADAPTER_DIR: /app/adapters
+      HF_HOME: /app/models_cache
+      TRANSFORMERS_CACHE: /app/models_cache
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MAX_NEW_TOKENS: ${MAX_NEW_TOKENS:-2048}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      HF_TOKEN: ${HF_TOKEN:-}
+      SERVICE_NAME: ${SERVICE_NAME:-exercise-generator}
+      SAYIT_INTEGRATION: "true"
+      SAYIT_BACKEND_URL: ${SAYIT_BACKEND_URL:-http://backend:8000}
+    volumes:
+      - ./adapters:/app/adapters:ro
+      - hf_cache:/app/models_cache
+    networks:
+      - default
+      - sayit_network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+
+networks:
+  default:
+    driver: bridge
+  sayit_network:
+    external: true
+    name: ${SAYIT_NETWORK_NAME:-sayit_default}
+
+volumes:
+  hf_cache:
