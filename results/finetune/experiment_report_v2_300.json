@@ -1,0 +1,89 @@
+{
+  "date": "2026-03-21T08:35:28.732938",
+  "val_samples": 300,
+  "methods": {
+    "qwen2.5-3b": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.9084653848409653,
+        "f1_std": 0.033315440404416044
+      },
+      "perplexity": {
+        "perplexity": 1.2196825400102378,
+        "avg_loss": 0.19859061177749823
+      },
+      "task_relevance": {
+        "json_valid": 0.9866666666666667,
+        "task_type_match": 0.8533333333333334,
+        "error_cat_present": 0.9866666666666667,
+        "items_count_ok": 0.9133333333333333,
+        "has_answers": 0.95,
+        "composite": 0.9380000000000001
+      }
+    },
+    "smollm3-3b": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.9089141941070557,
+        "f1_std": 0.03326278897629371
+      },
+      "perplexity": {
+        "perplexity": 1.2335272060601403,
+        "avg_loss": 0.2098777127311871
+      },
+      "task_relevance": {
+        "json_valid": 0.96,
+        "task_type_match": 0.8366666666666667,
+        "error_cat_present": 0.96,
+        "items_count_ok": 0.8933333333333333,
+        "has_answers": 0.94,
+        "composite": 0.9179999999999999
+      }
+    },
+    "phi3.5-mini": {
+      "type": "llm",
+      "bertscore": {
+        "f1": 0.8805613382657369,
+        "f1_std": 0.023005925456685186
+      },
+      "perplexity": {
+        "perplexity": 4.6998435082442365,
+        "avg_loss": 1.5475292120434374
+      },
+      "task_relevance": {
+        "json_valid": 0.8066666666666666,
+        "task_type_match": 0.8,
+        "error_cat_present": 0.8066666666666666,
+        "items_count_ok": 0.02,
+        "has_answers": 0.8,
+        "composite": 0.6466666666666667
+      }
+    },
+    "baseline_fib": {
+      "type": "baseline",
+      "bertscore": null,
+      "perplexity": null,
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.0,
+        "error_cat_present": 0.95,
+        "items_count_ok": 0.95,
+        "has_answers": 0.95,
+        "composite": 0.7699999999999999
+      }
+    },
+    "baseline_recon": {
+      "type": "baseline",
+      "bertscore": null,
+      "perplexity": null,
+      "task_relevance": {
+        "json_valid": 1.0,
+        "task_type_match": 0.0,
+        "error_cat_present": 0.39,
+        "items_count_ok": 0.39,
+        "has_answers": 0.39,
+        "composite": 0.43400000000000005
+      }
+    }
+  }
+}
