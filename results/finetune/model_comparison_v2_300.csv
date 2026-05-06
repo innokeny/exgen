@@ -1,6 +1,0 @@
-Метод,BERTScore F1,Perplexity,JSON Valid,Task Match,Items OK,Answers OK,TR Composite
-qwen2.5-3b,0.9085,1.22,98.7%,85.3%,91.3%,95.0%,93.8%
-smollm3-3b,0.9089,1.23,96.0%,83.7%,89.3%,94.0%,91.8%
-phi3.5-mini,0.8806,4.70,80.7%,80.0%,2.0%,80.0%,64.7%
-baseline_fib,—,—,100.0%,0.0%,95.0%,95.0%,77.0%
-baseline_recon,—,—,100.0%,0.0%,39.0%,39.0%,43.4%
