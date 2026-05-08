@@ -1,0 +1,32 @@
+[
+  {
+    "source_sentence": "It has a high - density population because for its small territory.",
+    "corrected_sentence": "It has a high - density population because of its small territory.",
+    "error_type": "Preposition",
+    "method": "fill_in_blanks"
+  },
+  {
+    "source_sentence": "Although of it is an industrial city, there are many shops.",
+    "corrected_sentence": "Although it is an industrial city, there are many shops.",
+    "error_type": "Preposition",
+    "method": "fill_in_blanks"
+  },
+  {
+    "source_sentence": "There are a commercial zone along the widest street.",
+    "corrected_sentence": "There is a commercial zone along the widest street.",
+    "error_type": "Subject-Verb Agreement",
+    "method": "reconstruction"
+  },
+  {
+    "source_sentence": "I go to school by walk every morning.",
+    "corrected_sentence": "I go to school on foot every morning.",
+    "error_type": "Collocation",
+    "method": "fill_in_blanks"
+  },
+  {
+    "source_sentence": "Yesterday I go to the supermarket.",
+    "corrected_sentence": "Yesterday I went to the supermarket.",
+    "error_type": "Verb Tense",
+    "method": "reconstruction"
+  }
+]

@@ -1,0 +1,22 @@
+# Runtime tools for §3.4 / §3.5 of the thesis.
+# Pinned to the minor version so the run is reproducible (matches the policy
+# stated in §3.2 about strict dependency pinning).
+
+# --- functional / contract testing -----------------------------------------
+pytest==8.3.*
+pytest-asyncio==0.24.*
+httpx==0.27.*
+schemathesis==3.*
+
+# --- load testing ----------------------------------------------------------
+locust==2.32.*
+
+# --- analytics -------------------------------------------------------------
+pandas==2.2.*
+numpy==2.1.*
+
+# --- AIPerf cross-validation (optional — set RUN_AIPERF=false to skip) -----
+# The shim uses fastapi + uvicorn + httpx (already pulled in via Schemathesis).
+fastapi==0.115.*
+uvicorn==0.32.*
+aiperf==1.*

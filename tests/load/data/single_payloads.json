@@ -1,0 +1,82 @@
+[
+  {
+    "user_id": "u_load_001",
+    "message_content": "It has a high - density population because for its small territory.",
+    "grammar_error": "Preposition",
+    "explanation": "Wrong preposition: 'for' should be 'of'.",
+    "llm_confidence": 0.95,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "u_load_002",
+    "message_content": "Although of it is an industrial city, there are many shops and department stores.",
+    "grammar_error": "Preposition",
+    "explanation": "Extra preposition 'of' should be removed after 'Although'.",
+    "llm_confidence": 0.92,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "u_load_003",
+    "message_content": "There are a commercial zone along the widest street of the city.",
+    "grammar_error": "Subject-Verb Agreement",
+    "explanation": "Subject 'a commercial zone' is singular, verb should be 'is'.",
+    "llm_confidence": 0.97,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "u_load_004",
+    "message_content": "I go to school by walk every morning.",
+    "grammar_error": "Collocation",
+    "explanation": "Use 'on foot' instead of 'by walk'.",
+    "llm_confidence": 0.90,
+    "task_type": "vocabulary_fill"
+  },
+  {
+    "user_id": "u_load_005",
+    "message_content": "Despite it is an industrial city, there are many shops.",
+    "grammar_error": "Collocation",
+    "explanation": "'Despite' takes a noun phrase; use 'Although' before a clause.",
+    "llm_confidence": 0.88,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "u_load_006",
+    "message_content": "She have been working here since 2019.",
+    "grammar_error": "Subject-Verb Agreement",
+    "explanation": "Singular subject 'She' takes 'has', not 'have'.",
+    "llm_confidence": 0.99,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "u_load_007",
+    "message_content": "I saw cat in garden yesterday.",
+    "grammar_error": "Article",
+    "explanation": "Missing articles before countable nouns: 'a cat', 'the garden'.",
+    "llm_confidence": 0.96,
+    "task_type": "vocabulary_fill"
+  },
+  {
+    "user_id": "u_load_008",
+    "message_content": "Yesterday I go to the supermarket and buy bread.",
+    "grammar_error": "Verb Tense",
+    "explanation": "Past time marker requires past tense: 'went', 'bought'.",
+    "llm_confidence": 0.98,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "u_load_009",
+    "message_content": "He is more taller than his brother.",
+    "grammar_error": "Comparative",
+    "explanation": "Either 'taller' or 'more tall' — never both.",
+    "llm_confidence": 0.93,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "u_load_010",
+    "message_content": "The company was founded in 1995, since then it grow rapidly.",
+    "grammar_error": "Verb Tense",
+    "explanation": "Use present perfect 'has grown' to express continuation up to now.",
+    "llm_confidence": 0.91,
+    "task_type": "matching"
+  }
+]
