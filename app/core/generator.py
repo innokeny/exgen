@@ -1,9 +1,3 @@
-"""LLM-based exercise generation.
-
-Wraps the trained Qwen2.5-3B + LoRA model and produces raw model output.
-Parsing/validation lives in `postprocessor.py`.
-"""
-
 from __future__ import annotations
 
 import time

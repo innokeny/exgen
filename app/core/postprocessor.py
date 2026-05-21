@@ -1,12 +1,3 @@
-"""Parses raw LLM output into a validated Exercise.
-
-The fine-tuned model is trained to emit JSON only, but in practice it sometimes
-adds a code-fence wrapper or trailing commentary. This module:
-  1. Strips fences / locates the first `{...}` block.
-  2. Validates the parsed dict against `Exercise`.
-  3. On failure, returns a structured error so the API can fall back.
-"""
-
 from __future__ import annotations
 
 import json

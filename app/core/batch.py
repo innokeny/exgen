@@ -1,10 +1,3 @@
-"""Batch generation: UserErrorProfile → flat list of MCQ questions.
-
-Replaces SAYIT's Grok-driven `generate_questions_from_errors()`. The output
-shape (list[TestQuestion]) matches what `/tests/personalized/start` already
-forwards to the frontend, so the SAYIT backend swap is a one-line change.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -18,7 +11,7 @@ from app.api.schemas import (
     TestQuestion,
 )
 from app.core.postprocessor import exercise_to_questions, parse_exercise
-from app.core.template_engine import fill_in_blanks
+from app.core.template_engine import GECPair, fill_in_blanks, fill_in_blanks_exercise
 
 log = structlog.get_logger(__name__)
 
@@ -93,28 +86,38 @@ def _fallback_questions(
     *,
     counter_start: int,
 ) -> tuple[List[TestQuestion], dict]:
-    """Build `count` template-based questions for one error category."""
+    """Build up to `count` template-based questions for one error category.
+
+    Uses the profile-based FiB generator so that each requested gap comes from
+    a different example sentence — no duplicate items.
+    """
     if not entry.examples:
         return [], {}
-    best = entry.examples[0]
-    ex = fill_in_blanks(
-        source_sentence=best.original,
-        corrected_sentence=best.corrected,
+
+    pairs = [GECPair(source=e.original, corrected=e.corrected) for e in entry.examples if e.original and e.corrected]
+    explanation = entry.examples[0].explanation if entry.examples else ""
+
+    ex = fill_in_blanks_exercise(
         error_type=entry.error_type,
+        profile=pairs,
+        n_items=max(1, count),
     )
-    questions: List[TestQuestion] = []
-    # The single-item template exercise can be reused for each requested gap;
-    # IDs stay unique because of `counter_start`.
-    for i in range(count):
-        qs = exercise_to_questions(
-            ex,
-            entry.error_type,
-            best.explanation,
-            start_idx=counter_start + i,
+    if ex is None:
+        # Last-resort single-pair fallback so the caller still gets something.
+        best = entry.examples[0]
+        ex = fill_in_blanks(
+            source_sentence=best.original,
+            corrected_sentence=best.corrected,
+            error_type=entry.error_type,
         )
-        if not qs:
-            break
-        questions.append(qs[0])
+
+    questions = exercise_to_questions(
+        ex,
+        entry.error_type,
+        explanation,
+        start_idx=counter_start,
+        max_items=count,
+    )
     return questions, ex
 
 
