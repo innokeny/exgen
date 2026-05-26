@@ -211,3 +211,7 @@ qwen2.5-3b/
 .claude
 
 notebooks/Explainable_GEC/
+
+load_test/results
+
+.DS_Store
