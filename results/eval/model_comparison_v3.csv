@@ -1,0 +1,7 @@
+﻿Метод,Тип,BERTScore F1,Perplexity,JSON Valid,Task Match,Items OK,Answers OK
+qwen2.5-3b,LLM,0.9137,1.22,98.7%,85.3%,86.3%,95.0%
+smollm3-3b,LLM,0.9145,1.23,96.0%,83.7%,85.7%,94.0%
+phi3.5-mini,LLM,0.8250,4.70,80.7%,80.0%,1.0%,80.0%
+claude-opus-4-7,LLM,0.8977,—,100.0%,100.0%,100.0%,100.0%
+baseline_fib_v2,Baseline,—,—,100.0%,27.3%,100.0%,100.0%
+baseline_recon_v2,Baseline,—,—,100.0%,25.0%,100.0%,100.0%

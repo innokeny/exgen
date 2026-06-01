@@ -1,0 +1,8 @@
+# Optional dev dependency: only required to drive the load test, not to run
+# the service itself. Install with:
+#     pip install -r load_test/requirements.txt
+#
+# Locust 2.x ships its own HTTP client (geventhttpclient + requests) and an
+# embedded web UI; the headless runner used by run_benchmark.sh needs no
+# extra packages.
+locust==2.32.4

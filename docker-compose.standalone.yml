@@ -1,0 +1,43 @@
+# Standalone deployment — no SAYIT network attached.
+# Use this for local dev, demos, or when running the generator independently:
+#   docker compose -f docker-compose.standalone.yml up -d
+services:
+  generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sayit-exercise-generator:latest
+    container_name: sayit-exgen
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      MODEL_NAME: ${MODEL_NAME:-qwen2.5-3b}
+      ADAPTER_DIR: /app/adapters
+      HF_HOME: /app/models_cache
+      TRANSFORMERS_CACHE: /app/models_cache
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MAX_NEW_TOKENS: ${MAX_NEW_TOKENS:-2048}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      HF_TOKEN: ${HF_TOKEN:-}
+      SERVICE_NAME: ${SERVICE_NAME:-exercise-generator}
+      SAYIT_INTEGRATION: "false"
+    volumes:
+      - ./adapters:/app/adapters:ro
+      - hf_cache:/app/models_cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+
+volumes:
+  hf_cache:
