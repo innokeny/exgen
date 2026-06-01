@@ -83,7 +83,7 @@ class Settings(BaseSettings):
 
     # ---- SAYIT integration -------------------------------------------------
     # Service identity reported via /api/v1/models — used by SAYIT for
-    # discovery / health gating before routing traffic away from Grok.
+    # discovery / health gating before routing traffic
     service_name: str = "exercise-generator"
 
     # When true, the service expects to be reachable on the shared SAYIT

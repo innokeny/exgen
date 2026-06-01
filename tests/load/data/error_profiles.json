@@ -1,0 +1,150 @@
+[
+  {
+    "user_id": "u_batch_001",
+    "language_level": "B1",
+    "max_questions": 15,
+    "error_profile": [
+      {
+        "error_type": "Preposition",
+        "occurrences": 12,
+        "examples": [
+          {
+            "original": "I go to school by walk",
+            "corrected": "I go to school on foot",
+            "explanation": "Use 'on foot' instead of 'by walk'."
+          },
+          {
+            "original": "She is good in mathematics",
+            "corrected": "She is good at mathematics",
+            "explanation": "Use 'good at' for skills."
+          }
+        ]
+      },
+      {
+        "error_type": "Article",
+        "occurrences": 8,
+        "examples": [
+          {
+            "original": "I saw cat in garden",
+            "corrected": "I saw a cat in the garden",
+            "explanation": "Use 'a' for countable nouns and 'the' for specific places."
+          }
+        ]
+      },
+      {
+        "error_type": "Subject-Verb Agreement",
+        "occurrences": 5,
+        "examples": [
+          {
+            "original": "She have been here for an hour",
+            "corrected": "She has been here for an hour",
+            "explanation": "Singular subject takes 'has'."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "user_id": "u_batch_002",
+    "language_level": "A2",
+    "max_questions": 10,
+    "error_profile": [
+      {
+        "error_type": "Verb Tense",
+        "occurrences": 15,
+        "examples": [
+          {
+            "original": "Yesterday I go to the supermarket",
+            "corrected": "Yesterday I went to the supermarket",
+            "explanation": "Past time marker requires past tense."
+          },
+          {
+            "original": "Last week she buy a new car",
+            "corrected": "Last week she bought a new car",
+            "explanation": "Past tense of 'buy' is 'bought'."
+          }
+        ]
+      },
+      {
+        "error_type": "Pronoun",
+        "occurrences": 4,
+        "examples": [
+          {
+            "original": "Me and my friend went to cinema",
+            "corrected": "My friend and I went to the cinema",
+            "explanation": "Use subject pronoun 'I' as subject."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "user_id": "u_batch_003",
+    "language_level": "B2",
+    "max_questions": 20,
+    "error_profile": [
+      {
+        "error_type": "Collocation",
+        "occurrences": 9,
+        "examples": [
+          {
+            "original": "Despite it is an industrial city, many shops exist",
+            "corrected": "Although it is an industrial city, many shops exist",
+            "explanation": "'Despite' takes a noun; 'Although' takes a clause."
+          }
+        ]
+      },
+      {
+        "error_type": "Comparative",
+        "occurrences": 6,
+        "examples": [
+          {
+            "original": "He is more taller than his brother",
+            "corrected": "He is taller than his brother",
+            "explanation": "Use either '-er' or 'more' — not both."
+          }
+        ]
+      },
+      {
+        "error_type": "Preposition",
+        "occurrences": 7,
+        "examples": [
+          {
+            "original": "I am interested about history",
+            "corrected": "I am interested in history",
+            "explanation": "Use 'interested in'."
+          }
+        ]
+      },
+      {
+        "error_type": "Word Order",
+        "occurrences": 3,
+        "examples": [
+          {
+            "original": "Always I drink coffee in the morning",
+            "corrected": "I always drink coffee in the morning",
+            "explanation": "Adverbs of frequency go before the main verb."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "user_id": "u_batch_004",
+    "language_level": "B1",
+    "max_questions": 12,
+    "error_profile": [
+      {
+        "error_type": "Article",
+        "occurrences": 18,
+        "examples": [
+          {
+            "original": "I have car",
+            "corrected": "I have a car",
+            "explanation": "Countable singular nouns require an article."
+          }
+        ]
+      }
+    ]
+  }
+]

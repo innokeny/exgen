@@ -1,11 +1,3 @@
-"""Loads base model + LoRA adapter once at startup and serves it.
-
-Singleton — initialized in `app.main` lifespan, accessed via `get_manager()`.
-Models are kept in VRAM for the lifetime of the process. Since the service is
-synchronous and answers one request at a time, there is no concurrency hazard
-around the underlying torch module.
-"""
-
 from __future__ import annotations
 
 import threading

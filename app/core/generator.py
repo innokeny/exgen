@@ -30,8 +30,10 @@ class LLMGenerator:
     def __init__(self, manager: ModelManager, max_new_tokens: int = 2048):
         self._manager = manager
         self._max_new_tokens = max_new_tokens
-        # One lock per generator instance — the model itself is the shared
-        # resource, so a process-wide lock is the right granularity.
+        # Single-tenant inference: serialize all model.generate calls. FastAPI
+        # dispatches sync endpoints onto a threadpool, so without this lock
+        # concurrent requests share KV-cache/attention buffers on the same
+        # CUDA model and trigger device-side asserts.
         self._lock = threading.Lock()
 
     def generate_raw(
@@ -118,7 +120,7 @@ class LLMGenerator:
         n_in = int(inputs["input_ids"].shape[1])
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
 
-        with torch.no_grad():
+        with self._lock, torch.no_grad():
             output_ids = model.generate(
                 **inputs,
                 max_new_tokens=self._max_new_tokens,

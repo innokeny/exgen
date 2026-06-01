@@ -1,0 +1,98 @@
+[
+  {
+    "user_id": "load_u_001",
+    "message_content": "It has a high - density population because for its small territory.",
+    "grammar_error": "Preposition",
+    "explanation": "The student wrote 'because for'. The correct form is 'because of'.",
+    "llm_confidence": 0.95,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "load_u_002",
+    "message_content": "She have finished her homework yesterday evening.",
+    "grammar_error": "Tense",
+    "explanation": "Use present perfect with 'has' for third person singular, or use past simple with a time reference.",
+    "llm_confidence": 0.92,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "load_u_003",
+    "message_content": "I saw cat sitting on garden fence near our house.",
+    "grammar_error": "Article",
+    "explanation": "Use 'a cat' (indefinite, first mention) and 'the garden fence' (definite, specific one).",
+    "llm_confidence": 0.88,
+    "task_type": "grammar_choice"
+  },
+  {
+    "user_id": "load_u_004",
+    "message_content": "The student read the book during the long summer holidays.",
+    "grammar_error": "Voice",
+    "explanation": "Convert the active sentence into the passive voice while preserving the meaning.",
+    "llm_confidence": 0.88,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "load_u_005",
+    "message_content": "If I have more time, I will travel to many countries.",
+    "grammar_error": "Conditional",
+    "explanation": "Rewrite as a second conditional: hypothetical present with 'would' in the main clause.",
+    "llm_confidence": 0.83,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "load_u_006",
+    "message_content": "He said that he is tired and he wanted to go home.",
+    "grammar_error": "ReportedSpeech",
+    "explanation": "Apply the backshift rule for reported speech: present → past.",
+    "llm_confidence": 0.9,
+    "task_type": "transformation"
+  },
+  {
+    "user_id": "load_u_007",
+    "message_content": "She made a significant donation to the research project.",
+    "grammar_error": "WordChoice",
+    "explanation": "Use 'contribution' instead of 'donation' in this academic context.",
+    "llm_confidence": 0.85,
+    "task_type": "vocabulary_fill"
+  },
+  {
+    "user_id": "load_u_008",
+    "message_content": "The committee will think about this problem at next meeting.",
+    "grammar_error": "Collocation",
+    "explanation": "Use the collocation 'discuss the problem' or 'address the problem' instead of 'think about'.",
+    "llm_confidence": 0.78,
+    "task_type": "vocabulary_fill"
+  },
+  {
+    "user_id": "load_u_009",
+    "message_content": "The new policy had a big impact for the local community.",
+    "grammar_error": "WordChoice",
+    "explanation": "The correct preposition with 'impact' is 'on', not 'for'.",
+    "llm_confidence": 0.87,
+    "task_type": "vocabulary_fill"
+  },
+  {
+    "user_id": "load_u_010",
+    "message_content": "He depends of his parents for financial support every month.",
+    "grammar_error": "Preposition",
+    "explanation": "The verb 'depend' takes the preposition 'on', not 'of'.",
+    "llm_confidence": 0.91,
+    "task_type": "matching"
+  },
+  {
+    "user_id": "load_u_011",
+    "message_content": "I am very interested for learning ancient history at university.",
+    "grammar_error": "Preposition",
+    "explanation": "The adjective 'interested' takes the preposition 'in', not 'for'.",
+    "llm_confidence": 0.89,
+    "task_type": "matching"
+  },
+  {
+    "user_id": "load_u_012",
+    "message_content": "She apologized about being late and promised it will not happen again.",
+    "grammar_error": "Preposition",
+    "explanation": "The verb 'apologize' takes 'for' (the action) or 'to' (the person), not 'about'.",
+    "llm_confidence": 0.86,
+    "task_type": "matching"
+  }
+]

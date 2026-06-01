@@ -110,7 +110,7 @@ class HealthResponse(BaseModel):
 
 
 # ---------- /api/v1/generate/batch (SAYIT integration) ----------
-# Replaces the Grok-driven path in SAYIT's error_analysis.py. Input shape mirrors
+# Input shape mirrors
 # the UserErrorProfile rows produced by the SAYIT backend; output shape mirrors
 # what the /tests/personalized/start endpoint already passes to the frontend.
 
