@@ -214,5 +214,3 @@ notebooks/Explainable_GEC/
 
 .DS_Store
 
-# Benchmark / load test artifacts (EDA/finetune outputs in results/ stay tracked)
-results/locust/
