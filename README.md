@@ -223,10 +223,10 @@ curl -X POST http://localhost:8000/api/v1/generate/template \
   "gpu": {
     "available": true,
     "device_count": 1,
-    "device_name": "NVIDIA RTX 4090",
-    "vram_total_mb": 24576,
-    "vram_used_mb": 6500,
-    "vram_free_mb": 18076
+    "device_name": "NVIDIA RTX 6000 Ada",
+    "vram_total_mb": 49140,
+    "vram_used_mb": 7475,
+    "vram_free_mb": 41665
   }
 }
 ```
@@ -253,7 +253,7 @@ Run unit tests (no GPU/model required — generator is mocked):
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
-pytest -v
+pytest tests/functional/ -v
 ```
 
 Run the service locally without Docker (CPU mode is slow but works):
@@ -265,40 +265,95 @@ FORCE_CPU=true uvicorn app.main:app --reload
 Latency benchmark against a running container:
 
 ```bash
-python scripts/run_benchmark.py --n 20
+python -m tests.benchmarks.latency --n 20
 ```
 
-## 6. Project layout
+## 6. Testing & benchmarking
+
+The `tests/` tree groups everything that exercises a running service.
+Install runtime deps once: `pip install -r tests/requirements.txt`.
+
+| Subdir              | Purpose                                                  | Entry point                              |
+|---------------------|----------------------------------------------------------|------------------------------------------|
+| `tests/functional/` | Unit + smoke + ФТ-01..ФТ-14 + schemathesis contract test | `pytest tests/functional/` or `./run_functional.sh` |
+| `tests/benchmarks/` | Python-driven micro-benchmarks (latency, throughput, stress, long-run, validity) | `python -m tests.benchmarks.<name>` or `run_all.py` |
+| `tests/load/`       | Endurance / cold-start / GPU-monitor / stress shell scripts (Locust under the hood) | `./tests/load/run_*.sh`                  |
+| `tests/locust/`     | Concurrency sweep (1, 2, 4, 8, 16 users)                 | `./tests/locust/run_benchmark.sh`        |
+| `tests/aiperf/`     | NVIDIA AIPerf cross-validation via a thin shim           | `./tests/aiperf/run_aiperf.sh`           |
+
+Full end-to-end suite (cold-start → functional → latency → throughput → stress
+→ endurance → AIPerf → analyze):
+
+```bash
+./tests/run_all.sh
+```
+
+Outputs land under `results/` at the repo root (`results/locust/`,
+`results/bench/`, `results/judge/`, …). Per-run logs are gitignored;
+summary CSV/MD files are tracked.
+
+## 7. Research artifacts
+
+The repo also carries the data-science side of the thesis. None of it is
+imported by the runtime service — it can be deleted from a deploy image.
+
+```
+data/
+├── dataset/        # train.jsonl, val.jsonl, val_meta.json
+├── predictions/    # all_predictions{,_50,_300,_300_v2..v4}.json, baseline_*_predictions.json
+└── judge_cache/    # LLM-as-judge per-model caches (jsonl)
+
+notebooks/          # EDA, fine-tune, eval (incl. _300, _v2 variants), data labeling,
+                    # template baselines, judge eval
+
+results/
+├── EDA/            # plots referenced from notebooks/EDA.ipynb
+├── data_labeling/  # ft_dataset.jsonl
+├── finetune/       # training curves, method/model comparison tables and figures
+├── eval/           # downstream evaluation outputs
+├── judge/          # judge_quality_results.csv
+└── locust/         # concurrency-sweep outputs (gitignored except summary.*)
+```
+
+Notebooks expect to be launched from the repo root (paths like
+`data/dataset/val.jsonl`). `template_based_v2.ipynb` also accepts the
+`../data/...` form for running from inside `notebooks/`.
+
+## 8. Project layout
 
 ```
 .
 ├── Dockerfile                  # multi-stage CUDA 12.1 build
 ├── docker-compose.yml          # GPU-enabled service definition
+├── docker-compose.standalone.yml
 ├── requirements.txt
 ├── .env.example
 ├── app/
 │   ├── main.py                 # FastAPI factory + lifespan
 │   ├── config.py               # pydantic-settings
 │   ├── api/
-│   │   ├── router.py           # /api/v1/generate, /generate/template, /health
+│   │   ├── router.py           # /api/v1/generate, /generate/batch, /generate/template, /health
 │   │   └── schemas.py
 │   ├── core/
 │   │   ├── model_manager.py    # base + LoRA loading, singleton
 │   │   ├── generator.py        # LLM inference
+│   │   ├── batch.py            # batch orchestration for /generate/batch
 │   │   ├── template_engine.py  # rule-based fallback (spaCy)
 │   │   └── postprocessor.py    # JSON extraction + validation
 │   └── prompts/templates.py    # SYSTEM + USER prompts (must match training)
 ├── adapters/qwen2.5-3b/        # LoRA weights (mounted read-only)
 ├── scripts/
-│   ├── download_models.py
-│   └── run_benchmark.py
-└── tests/
-    ├── test_api.py
-    ├── test_generator.py
-    └── test_health.py
+│   └── download_models.py      # pre-populate HF cache before first start
+├── tests/                      # see §6
+│   ├── functional/  benchmarks/  load/  locust/  aiperf/
+│   ├── requirements.txt
+│   └── run_all.sh
+├── data/                       # see §7 — dataset, predictions, judge cache
+├── notebooks/                  # see §7 — EDA, fine-tune, eval, baselines
+└── results/                    # tracked artifacts (plots, CSVs) + gitignored run logs
 ```
 
-## 7. SAYIT integration
+## 9. SAYIT integration
 
 This service is a drop-in replacement for the Grok-driven branch of
 `error_analysis.py:generate_questions_from_errors()`. The contract is
