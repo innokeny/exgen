@@ -8,18 +8,19 @@
 # contaminate the next measurement.
 #
 # Per-run CSV reports and a fallback-statistics JSON are written under
-# load_test/results/concurrency_N/.
+# results/locust/concurrency_N/ at the repository root.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${SCRIPT_DIR}"
 
 TARGET_HOST="${TARGET_HOST:-http://localhost:8000}"
 RUN_DURATION="${RUN_DURATION:-5m}"
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-30}"
 CONCURRENCY_LEVELS="${CONCURRENCY_LEVELS:-1 2 4 8 16}"
-RESULTS_DIR="${SCRIPT_DIR}/results"
+RESULTS_DIR="${RESULTS_DIR:-${REPO_ROOT}/results/locust}"
 
 export TARGET_HOST
 

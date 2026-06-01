@@ -27,7 +27,7 @@ import csv
 import json
 from pathlib import Path
 
-RESULTS_DIR = Path(__file__).parent / "results"
+RESULTS_DIR = Path(__file__).resolve().parents[2] / "results" / "locust"
 
 # Locust 2.x stats CSV columns we depend on. The 50/95/99 columns are written
 # as floats in milliseconds for the response-time percentiles.

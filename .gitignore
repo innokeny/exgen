@@ -212,6 +212,7 @@ qwen2.5-3b/
 
 notebooks/Explainable_GEC/
 
-load_test/results
-
 .DS_Store
+
+# Benchmark / load test artifacts
+results/

@@ -30,7 +30,7 @@
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r load_test/requirements.txt
+pip install -r tests/locust/requirements.txt
 ```
 
 `locust` намеренно вынесен в отдельный `requirements.txt`, чтобы не утяжелять
@@ -44,10 +44,10 @@ pip install -r load_test/requirements.txt
 
 ```bash
 # Локально
-./load_test/run_benchmark.sh
+./tests/locust/run_benchmark.sh
 
 # Против удалённого хоста
-TARGET_HOST=http://gpu-node-01:8000 ./load_test/run_benchmark.sh
+TARGET_HOST=http://gpu-node-01:8000 ./tests/locust/run_benchmark.sh
 ```
 
 Скрипт последовательно прогоняет тест для concurrency = 1, 2, 4, 8, 16:
@@ -74,7 +74,7 @@ TARGET_HOST=http://gpu-node-01:8000 ./load_test/run_benchmark.sh
 Например, быстрый sanity-прогон:
 
 ```bash
-RUN_DURATION=1m CONCURRENCY_LEVELS="1 4" ./load_test/run_benchmark.sh
+RUN_DURATION=1m CONCURRENCY_LEVELS="1 4" ./tests/locust/run_benchmark.sh
 ```
 
 ## Сводная таблица
@@ -82,26 +82,27 @@ RUN_DURATION=1m CONCURRENCY_LEVELS="1 4" ./load_test/run_benchmark.sh
 После завершения всех прогонов соберите сводку:
 
 ```bash
-python load_test/parse_results.py
+python tests/locust/parse_results.py
 ```
 
 Скрипт выведет Markdown-таблицу в stdout и параллельно сохранит её в
-`load_test/results/summary.md` и `load_test/results/summary.csv`. Эти файлы
+`results/locust/summary.md` и `results/locust/summary.csv`. Эти файлы
 можно вставить прямо в текст ВКР.
 
 ## Структура артефактов
 
 ```
-load_test/
+tests/locust/
 ├── locustfile.py            # сценарий нагрузки
 ├── payloads.json            # 12 запросов, по 3 на каждый task_type
 ├── requirements.txt         # locust==2.32.4
 ├── run_benchmark.sh         # прогон по уровням concurrency
-├── parse_results.py         # сборка summary.md / summary.csv
-└── results/                 # игнорируется в .gitignore
-    ├── summary.md
-    ├── summary.csv
-    └── concurrency_<N>/
+└── parse_results.py         # сборка summary.md / summary.csv
+
+results/locust/              # артефакты прогона (на корне репозитория)
+├── summary.md
+├── summary.csv
+└── concurrency_<N>/
         ├── locust_stats.csv          # агрегаты по эндпоинтам
         ├── locust_stats_history.csv  # ряд по времени (для графиков)
         ├── locust_failures.csv
@@ -175,16 +176,16 @@ load_test/
 
 ```bash
 # 1. Установите зависимости (один раз)
-pip install -r load_test/requirements.txt
+pip install -r tests/locust/requirements.txt
 
 # 2. Убедитесь, что сервис отвечает
 curl -fsS http://localhost:8000/health
 
 # 3. Прогоните бенчмарк (~28 минут: 5×5 мин + 4×30 с пауз)
-./load_test/run_benchmark.sh
+./tests/locust/run_benchmark.sh
 
 # 4. Соберите сводную таблицу
-python load_test/parse_results.py
+python tests/locust/parse_results.py
 ```
 
-Готовая таблица — `load_test/results/summary.md`.
+Готовая таблица — `results/locust/summary.md`.
