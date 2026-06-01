@@ -11,8 +11,6 @@ import structlog
 log = structlog.get_logger(__name__)
 
 
-# --- spaCy loader -----------------------------------------------------------
-
 _SPACY_NLP = None
 _SPACY_TRIED = False
 
@@ -31,8 +29,6 @@ def _get_spacy():
         _SPACY_NLP = None
     return _SPACY_NLP
 
-
-# --- Punctuation tables -----------------------------------------------------
 
 PUNCT_NO_SPACE_BEFORE = {
     ".", ",", ":", ";", "!", "?", ")", "]", "}",
@@ -72,8 +68,6 @@ POS_MAP = {
 }
 
 
-# --- Per-category task type + instruction (from notebook §9) -----------------
-
 ERROR_TYPE_CONFIG: Dict[str, Dict[str, str]] = {
     "Preposition":              {"fib_type": "grammar_choice",  "instruction": "Choose the correct preposition to complete each sentence."},
     "Article":                  {"fib_type": "grammar_choice",  "instruction": "Choose the correct article (a / an / the / —) for each sentence."},
@@ -96,8 +90,6 @@ ERROR_TYPE_CONFIG: Dict[str, Dict[str, str]] = {
 def config_for(error_type: str) -> Dict[str, str]:
     return ERROR_TYPE_CONFIG.get(error_type, ERROR_TYPE_CONFIG["Others"])
 
-
-# --- Tokenization / detokenization ------------------------------------------
 
 _TOKEN_RE = re.compile(r"\w+(?:'[a-zA-Z]+)?|[^\w\s]", flags=re.UNICODE)
 
@@ -128,8 +120,6 @@ def detokenize(tokens: Sequence[str]) -> str:
 def _is_meaningful(token: str) -> bool:
     return token not in PUNCT_NO_SPACE_BEFORE and token not in PUNCT_NO_SPACE_AFTER and token not in PUNCT_DASH
 
-
-# --- POS tagging in context -------------------------------------------------
 
 @functools.lru_cache(maxsize=50_000)
 def _cached_doc_pos(sentence_text: str) -> Tuple[Tuple[str, str], ...]:
@@ -167,29 +157,21 @@ def _pos_isolated(word: str) -> str:
     return POS_MAP.get(doc[0].pos_, "OTHER")
 
 
-# --- Diff between source and corrected --------------------------------------
-
 @dataclass
 class _Correction:
     applicable: bool
     target_word: str = ""
     target_pos: int = -1
     wrong_word: Optional[str] = None
-    kind: str = ""  # "replacement" | "insertion"
+    kind: str = ""
 
 
 def _diff_correction(source: str, corrected: str) -> _Correction:
-    """Locate the corrective token in `corrected` and the matching wrong token in `source`.
-
-    Detects single-edit replacements and insertions; deletions are not applicable
-    to fill-in-the-blank tasks and yield `applicable=False`.
-    """
     src = tokenize(source)
     cor = tokenize(corrected)
     if not cor:
         return _Correction(False)
 
-    # Find common prefix and suffix lengths.
     n_pref = 0
     while n_pref < min(len(src), len(cor)) and src[n_pref].lower() == cor[n_pref].lower():
         n_pref += 1
@@ -204,7 +186,7 @@ def _diff_correction(source: str, corrected: str) -> _Correction:
     cor_mid = cor[n_pref : len(cor) - n_suf]
 
     if not cor_mid:
-        return _Correction(False)  # deletion
+        return _Correction(False)
 
     target_word = cor_mid[0]
     target_pos = n_pref
@@ -212,7 +194,6 @@ def _diff_correction(source: str, corrected: str) -> _Correction:
         return _Correction(False)
 
     if not src_mid:
-        # Pure insertion.
         return _Correction(
             applicable=True,
             target_word=target_word,
@@ -233,17 +214,10 @@ def _diff_correction(source: str, corrected: str) -> _Correction:
     )
 
 
-# --- Distractor pool --------------------------------------------------------
-
-# Pool format: (error_type, POS) -> {wrong_word: frequency}
 DistractorPool = Dict[Tuple[str, str], Dict[str, int]]
 
 
 def build_distractor_pool(pairs: Iterable[Tuple[str, str, str]]) -> DistractorPool:
-    """Pool of real student errors, indexed by (error_type, POS-in-context).
-
-    `pairs` is an iterable of (source, corrected, error_type) tuples.
-    """
     pool: DistractorPool = {}
     for source, corrected, error_type in pairs:
         diff = _diff_correction(source, corrected)
@@ -252,7 +226,6 @@ def build_distractor_pool(pairs: Iterable[Tuple[str, str, str]]) -> DistractorPo
         wrong = diff.wrong_word
         if wrong in PUNCT_NO_SPACE_BEFORE or wrong in PUNCT_NO_SPACE_AFTER:
             continue
-        # POS of the wrong word in its original (source) context.
         src_tokens = tokenize(source)
         try:
             wrong_pos_idx = src_tokens.index(wrong)
@@ -279,7 +252,6 @@ def _match_case(distractor: str, target: str, is_sentence_start: bool) -> str:
     return distractor
 
 
-# Static fallback pools, used only when the distractor pool can't satisfy a slot.
 _POS_FALLBACK_POOL: Dict[str, List[str]] = {
     "PREP": ["of", "in", "on", "at", "for", "with", "about", "by", "from", "to"],
     "DET": ["the", "a", "an", "this", "that", "some", "any"],
@@ -354,8 +326,6 @@ def _pick_distractors(
     return chosen[:n]
 
 
-# --- Fill-in-the-Blanks item builders ---------------------------------------
-
 def _build_template(target_tokens: List[str], blank_pos: int) -> str:
     tokens = list(target_tokens)
     if blank_pos < 0 or blank_pos >= len(tokens):
@@ -428,8 +398,6 @@ def _build_fib_item(
         "student_answer_en": student_answer,
     }
 
-
-# --- Sentence Reconstruction item builder -----------------------------------
 
 def _split_into_chunks(tokens: List[str]) -> List[List[str]]:
     chunks: List[List[str]] = []
@@ -554,8 +522,6 @@ def _build_reconstruction_item(corrected: str, seed: int) -> Optional[Dict[str, 
     }
 
 
-# --- Multi-item exercise builders -------------------------------------------
-
 @dataclass
 class GECPair:
     source: str
@@ -584,11 +550,8 @@ def fill_in_blanks_exercise(
     n_items: int = TARGET_ITEMS,
     pool: Optional[DistractorPool] = None,
 ) -> Optional[Dict[str, Any]]:
-    """Build one Fill-in-the-Blanks exercise from a profile of GEC pairs."""
     pairs = _coerce_pairs(profile)
     if len(pairs) < MIN_ITEMS:
-        # Allow degraded mode when called from the legacy single-pair endpoint:
-        # fall back to whatever we have rather than returning nothing.
         if not pairs:
             return None
 
@@ -642,7 +605,6 @@ def sentence_reconstruction_exercise(
     profile: Iterable[Any],
     n_items: int = TARGET_ITEMS,
 ) -> Optional[Dict[str, Any]]:
-    """Build one Sentence-Reconstruction exercise from a profile of GEC pairs."""
     pairs = _coerce_pairs(profile)
     if not pairs:
         return None
@@ -686,15 +648,12 @@ def sentence_reconstruction_exercise(
     }
 
 
-# --- Backwards-compatible single-pair API -----------------------------------
-
 def fill_in_blanks(
     *,
     source_sentence: str,
     corrected_sentence: str,
     error_type: str,
 ) -> dict:
-    """Build a single-item FiB exercise from one GEC pair (legacy endpoint)."""
     ex = fill_in_blanks_exercise(
         error_type=error_type,
         profile=[GECPair(source=source_sentence, corrected=corrected_sentence)],
@@ -702,8 +661,6 @@ def fill_in_blanks(
     )
     if ex is not None:
         return ex
-    # Degenerate fallback: emit a still-valid one-item exercise so callers
-    # (e.g. the LLM-parse-failure path) always get a schema-conformant payload.
     cfg = config_for(error_type)
     tokens = tokenize(corrected_sentence)
     if not tokens:
@@ -740,7 +697,6 @@ def sentence_reconstruction(
     corrected_sentence: str,
     error_type: str,
 ) -> dict:
-    """Build a single-item Reconstruction exercise (legacy endpoint)."""
     ex = sentence_reconstruction_exercise(
         error_type=error_type,
         profile=[GECPair(source=source_sentence, corrected=corrected_sentence)],
@@ -748,7 +704,6 @@ def sentence_reconstruction(
     )
     if ex is not None:
         return ex
-    # Degenerate fallback: minimal token reshuffle.
     tokens = tokenize(corrected_sentence) or [corrected_sentence]
     shuffled = list(tokens)
     if len(shuffled) > 1:
@@ -809,7 +764,6 @@ def build_template_exercise_from_profile(
     profile: Iterable[Any],
     n_items: int = TARGET_ITEMS,
 ) -> Optional[Dict[str, Any]]:
-    """Profile-based entry point — preferred over the single-pair API."""
     if method == "fill_in_blanks":
         return fill_in_blanks_exercise(error_type=error_type, profile=profile, n_items=n_items)
     if method == "reconstruction":

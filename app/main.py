@@ -46,7 +46,6 @@ async def lifespan(app: FastAPI):
     _configure_logging(settings.log_level)
     log = structlog.get_logger("app.lifespan")
 
-    # HF cache must be set before importing/loading models that use it.
     os.environ.setdefault("HF_HOME", str(settings.hf_home))
     os.environ.setdefault("TRANSFORMERS_CACHE", str(settings.hf_home))
 

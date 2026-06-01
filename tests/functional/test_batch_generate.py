@@ -1,5 +1,3 @@
-"""Tests for the SAYIT-integration batch endpoint and helpers."""
-
 from __future__ import annotations
 
 import json
@@ -10,7 +8,6 @@ from app.core.postprocessor import exercise_to_questions
 
 
 def _multi_item_exercise(error_type: str, n_items: int = 6) -> str:
-    """Build a valid exercise JSON with `n_items` items for one error category."""
     items = [
         {
             "question_en": f"({error_type}) Choose the correct word #{i+1}: she ____ home.",
@@ -61,27 +58,22 @@ SAMPLE_PROFILE = [
 ]
 
 
-# ---------- _allocate ---------------------------------------------------------
-
 def test_allocate_proportional_to_occurrences():
     alloc = _allocate(SAMPLE_PROFILE, max_questions=10)
     assert sum(alloc) == 10
-    assert alloc[0] >= alloc[1]  # Preposition has more occurrences than Article
+    assert alloc[0] >= alloc[1]
     assert all(a >= 1 for a in alloc)
 
 
 def test_allocate_handles_tiny_budget():
     alloc = _allocate(SAMPLE_PROFILE, max_questions=1)
     assert sum(alloc) == 1
-    # Highest-occurrence category wins.
     assert alloc[0] == 1 and alloc[1] == 0
 
 
 def test_allocate_empty_profile():
     assert _allocate([], max_questions=10) == []
 
-
-# ---------- exercise_to_questions --------------------------------------------
 
 def test_exercise_to_questions_skips_items_without_answer():
     exercise = {
@@ -101,7 +93,7 @@ def test_exercise_to_questions_skips_items_without_answer():
     qs = exercise_to_questions(exercise, "Preposition", "expl")
     assert len(qs) == 1
     assert qs[0].correct_answer == "a"
-    assert len(qs[0].options) == 4  # padded with dashes
+    assert len(qs[0].options) == 4
 
 
 def test_exercise_to_questions_pads_options_from_word_bank():
@@ -130,8 +122,6 @@ def test_exercise_to_questions_unique_ids():
     ids = [q.id for q in qs]
     assert len(set(ids)) == len(ids)
 
-
-# ---------- generate_batch (helper) ------------------------------------------
 
 class _FakeGen:
     def __init__(self, by_error_type: dict[str, str]):
@@ -167,7 +157,7 @@ def test_generate_batch_distributes_questions():
 
 
 def test_generate_batch_falls_back_when_llm_returns_garbage():
-    gen = _FakeGen({})  # all categories produce unparseable output
+    gen = _FakeGen({})
     result = generate_batch(
         generator=gen,
         user_id="u_x",
@@ -179,8 +169,6 @@ def test_generate_batch_falls_back_when_llm_returns_garbage():
     assert len(result.questions) == 6
     assert set(result.fallback_categories) == {"Preposition", "Article"}
 
-
-# ---------- /api/v1/generate/batch -------------------------------------------
 
 BATCH_PAYLOAD = {
     "user_id": "u_123",
@@ -255,8 +243,6 @@ def test_batch_endpoint_rejects_unsupported_model(client):
     )
     assert r.status_code == 400
 
-
-# ---------- /api/v1/models ---------------------------------------------------
 
 def test_models_endpoint_lists_qwen(client):
     r = client.get("/api/v1/models")

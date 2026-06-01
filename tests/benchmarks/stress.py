@@ -1,13 +1,3 @@
-"""Bench: stepwise stress test.
-
-Fills in таблицу 21 (3.4) — поведение сервиса при стресс-нагрузке: для уровней
-1×, 2×, 4×, 8× от расчётного фиксируется RPS, p95 задержки, доля ошибок и
-расход видеопамяти. После снятия избыточной нагрузки измеряется время
-возврата времени отклика к исходному уровню.
-
-Usage:
-    python -m scripts.benchmarks.stress --baseline 2 --duration 60 --recovery 30
-"""
 from __future__ import annotations
 
 import argparse
@@ -87,7 +77,6 @@ def run_step(base_url: str, concurrency: int, duration_s: float, timeout: float)
 
 
 def measure_recovery(base_url: str, baseline_p95_ms: float, max_wait_s: float, timeout: float) -> Dict[str, Any]:
-    """Probe the service every second until p95 over a sliding window matches baseline."""
     window: List[float] = []
     started = time.perf_counter()
     recovered_at: float | None = None

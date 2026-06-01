@@ -1,27 +1,3 @@
-"""
-Post-processing for the load runs.
-
-Reads:
-    results/<run>_stats.csv             Locust per-endpoint summary
-    results/<run>_stats_history.csv     Locust 1-second timeline (--csv-full-history)
-    results/<run>_failures.csv          Locust failures
-    results/<run>.gpu.csv               nvidia-smi dmon trace
-    results/<run>.extra.jsonl           items / fallback per request (locustfile hook)
-
-Writes:
-    results/tables/table18_validity.md      §3.4 valid-JSON share
-    results/tables/table19_latency.md       §3.4 latency distribution
-    results/tables/table20_throughput.md    §3.4 throughput vs concurrency
-    results/tables/table21_stress.md        §3.4 behaviour under stress
-    results/tables/table22_resources.md     §3.5 VRAM / cold-start
-    results/tables/table23_per_user.md      §3.5 per-active-user resources
-    results/tables/summary.json             Machine-readable everything
-
-Run:
-    python analyze.py results/                               # all runs
-    python analyze.py results/ --runs latency throughput     # subset
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -33,10 +9,6 @@ from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _percentile(values: list[float], p: float) -> float:
@@ -58,7 +30,6 @@ def _read_locust_stats(prefix: Path) -> pd.DataFrame:
 def _read_locust_history(prefix: Path) -> pd.DataFrame:
     f = prefix.with_name(prefix.name + "_stats_history.csv")
     df = pd.read_csv(f)
-    # Keep only Aggregated rows for whole-system metrics.
     return df[df["Name"] == "Aggregated"].copy()
 
 
@@ -82,11 +53,6 @@ def _md_table(headers: list[str], rows: list[list[str]]) -> str:
     for r in rows:
         out.append("| " + " | ".join(str(v) for v in r) + " |")
     return "\n".join(out)
-
-
-# ---------------------------------------------------------------------------
-# Tables
-# ---------------------------------------------------------------------------
 
 
 @dataclass
@@ -113,17 +79,15 @@ def _latency_from_locust(stats: pd.DataFrame, endpoint: str) -> LatencyStats:
         p99_ms=float(row["99%"]),
         max_ms=float(row["Max Response Time"]),
         mean_ms=float(row["Average Response Time"]),
-        std_ms=float(row.get("Average Response Time", 0.0)) * 0,  # filled from history
+        std_ms=float(row.get("Average Response Time", 0.0)) * 0,
     )
 
 
 def table_19_latency(results_dir: Path) -> str:
-    """Table 19 — latency distribution under single-user load."""
     prefix = results_dir / "latency"
     stats = _read_locust_stats(prefix)
     history = _read_locust_history(prefix)
     s = _latency_from_locust(stats, "/api/v1/generate")
-    # Std and mean from per-second history.
     rt_series = history["Total Average Response Time"].dropna()
     std_ms = float(rt_series.std(ddof=1)) if len(rt_series) > 1 else 0.0
 
@@ -144,11 +108,9 @@ def table_19_latency(results_dir: Path) -> str:
 
 
 def table_20_throughput(results_dir: Path) -> str:
-    """Table 20 — throughput vs. concurrency."""
     prefix = results_dir / "throughput"
     history = _read_locust_history(prefix)
 
-    # Stage boundaries (must match ThroughputShape in locustfile.py).
     stages = [(1, 0, 300), (2, 300, 600), (4, 600, 900), (8, 900, 1200), (16, 1200, 1500)]
     rows = []
     for users, t0, t1 in stages:
@@ -158,7 +120,6 @@ def table_20_throughput(results_dir: Path) -> str:
             continue
         rps = window["Requests/s"].mean()
         rt_avg = window["Total Average Response Time"].mean()
-        # Locust failure ratio from the same window.
         failures = window["Failures/s"].sum()
         total_req = window["Requests/s"].sum()
         success_pct = 100.0 * (1 - failures / max(total_req, 1))
@@ -176,7 +137,6 @@ def table_20_throughput(results_dir: Path) -> str:
 
 
 def table_21_stress(results_dir: Path) -> str:
-    """Table 21 — behaviour under 1x/2x/4x/8x baseline load."""
     prefix = results_dir / "stress"
     history = _read_locust_history(prefix)
     gpu = _read_gpu(prefix)
@@ -199,7 +159,6 @@ def table_21_stress(results_dir: Path) -> str:
         total = window["Requests/s"].sum()
         err_pct = 100.0 * failures / max(total, 1)
 
-        # GPU memory share for the same window.
         if not gpu.empty:
             g = gpu.iloc[t0:t1]
             mem_total = g["mem_used_mib"].max() + g["mem_free_mib"].max()
@@ -223,7 +182,6 @@ def table_21_stress(results_dir: Path) -> str:
 
 
 def table_22_resources(results_dir: Path) -> str:
-    """Table 22 — VRAM and cold-start figures from §3.5."""
     cold_start_csv = results_dir / "cold_start.csv"
     cs_ms = first_req_ms = "—"
     if cold_start_csv.exists():
@@ -237,14 +195,12 @@ def table_22_resources(results_dir: Path) -> str:
         h = json.loads(health_path.read_text())
         vram_after_load = f"{h['gpu']['vram_used_mb']/1024:.2f}"
 
-    # Steady-state VRAM = mean from any GPU trace under load.
     steady_gpu = _read_gpu(results_dir / "throughput")
     if not steady_gpu.empty:
         vram_steady = f"{steady_gpu['mem_used_mib'].mean()/1024:.2f}"
     else:
         vram_steady = "—"
 
-    # Steady-state response time = median from latency run.
     steady_rt = "—"
     lat_stats = results_dir / "latency_stats.csv"
     if lat_stats.exists():
@@ -268,7 +224,6 @@ def table_22_resources(results_dir: Path) -> str:
 
 def table_23_per_user(results_dir: Path, requests_per_user_per_day: int = 6,
                       questions_per_request: int = 15) -> str:
-    """Table 23 — per-active-user resource projection."""
     prefix = results_dir / "throughput"
     stats = _read_locust_stats(prefix)
     gpu = _read_gpu(prefix)
@@ -276,26 +231,22 @@ def table_23_per_user(results_dir: Path, requests_per_user_per_day: int = 6,
     if stats.empty or gpu.empty:
         return "## Таблица 23 — недостаточно данных (запустите run_throughput.sh)\n"
 
-    # Per-batch cost.
     batch_row = stats[stats["Name"].str.contains("/api/v1/generate/batch", regex=False)]
     if batch_row.empty:
         return "## Таблица 23 — нет данных по /generate/batch\n"
     batch_lat_s = float(batch_row.iloc[0]["Average Response Time"]) / 1000.0
     batch_questions = questions_per_request
 
-    # Average power during the test = J/s.
     avg_power_w = float(gpu["power_w"].mean())
     energy_per_batch_j = avg_power_w * batch_lat_s
 
-    # Per active user / day.
     exercises_per_day = requests_per_user_per_day * batch_questions
     inference_s_per_day = requests_per_user_per_day * batch_lat_s
     energy_wh_per_day = (requests_per_user_per_day * energy_per_batch_j) / 3600.0
     busy_pct = 100.0 * inference_s_per_day / 86400.0
 
-    # GPU saturation -> max users / day.
     saturating_rps = stats["Requests/s"].astype(float).max()
-    max_batches_per_day = saturating_rps * 86400.0 * 0.7  # 30 % safety margin
+    max_batches_per_day = saturating_rps * 86400.0 * 0.7
     max_users = int(max_batches_per_day / requests_per_user_per_day)
 
     rows = [
@@ -311,16 +262,12 @@ def table_23_per_user(results_dir: Path, requests_per_user_per_day: int = 6,
 
 
 def table_18_validity(results_dir: Path) -> str:
-    """Table 18 — share of structurally valid JSON responses by task type."""
     extra = _read_locust_extra(results_dir / "latency")
     if extra.empty:
         return "## Таблица 18 — недостаточно данных (нет latency.extra.jsonl)\n"
 
-    # Valid = response was OK *and* did not fall back.
     extra["valid"] = ~extra["fallback"]
 
-    # Group by endpoint instead of task_type — extra trace doesn't capture it,
-    # but you can extend the locustfile to push task_type through context.
     summary = extra.groupby("endpoint").agg(
         runs=("valid", "count"),
         valid=("valid", "sum"),
@@ -336,11 +283,6 @@ def table_18_validity(results_dir: Path) -> str:
         ["Маршрут", "Прогонов", "Валидных", "Доля, %", "Минимум, %"],
         rows,
     )
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 
 def main() -> None:

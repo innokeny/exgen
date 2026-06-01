@@ -39,16 +39,10 @@ class BatchResult:
 
 
 def _allocate(entries: List[ErrorProfileEntry], max_questions: int) -> List[int]:
-    """Distribute `max_questions` across `entries` proportional to occurrences.
-
-    Guarantees ≥1 question per entry while the budget allows. The remainder
-    after flooring is assigned to entries with the largest fractional parts.
-    """
     n = len(entries)
     if n == 0:
         return []
     if max_questions <= n:
-        # Not enough budget to give every entry one — take the top-K by occurrences.
         order = sorted(range(n), key=lambda i: entries[i].occurrences, reverse=True)
         alloc = [0] * n
         for i in order[:max_questions]:
@@ -61,7 +55,6 @@ def _allocate(entries: List[ErrorProfileEntry], max_questions: int) -> List[int]
 
     diff = max_questions - sum(floor)
     if diff > 0:
-        # Hand out the leftover by descending fractional part.
         order = sorted(range(n), key=lambda i: raw[i] - int(raw[i]), reverse=True)
         for i in order:
             if diff == 0:
@@ -69,7 +62,6 @@ def _allocate(entries: List[ErrorProfileEntry], max_questions: int) -> List[int]
             floor[i] += 1
             diff -= 1
     elif diff < 0:
-        # Over-allocated (rare, only with tiny budgets) — trim from biggest buckets.
         order = sorted(range(n), key=lambda i: floor[i], reverse=True)
         for i in order:
             if diff == 0:
@@ -86,11 +78,6 @@ def _fallback_questions(
     *,
     counter_start: int,
 ) -> tuple[List[TestQuestion], dict]:
-    """Build up to `count` template-based questions for one error category.
-
-    Uses the profile-based FiB generator so that each requested gap comes from
-    a different example sentence — no duplicate items.
-    """
     if not entry.examples:
         return [], {}
 
@@ -103,7 +90,6 @@ def _fallback_questions(
         n_items=max(1, count),
     )
     if ex is None:
-        # Last-resort single-pair fallback so the caller still gets something.
         best = entry.examples[0]
         ex = fill_in_blanks(
             source_sentence=best.original,
@@ -130,7 +116,6 @@ def generate_batch(
     model_key: Optional[str],
     default_model: str,
 ) -> BatchResult:
-    """Produce up to `max_questions` MCQs distributed across error categories."""
     profile = [p for p in error_profile if p.examples]
     profile.sort(key=lambda p: p.occurrences, reverse=True)
     if not profile:
@@ -182,11 +167,10 @@ def generate_batch(
                     reason=parsed.error,
                 )
         except FileNotFoundError:
-            raise  # adapter missing → propagate so router returns 503
+            raise
         except Exception as e:  # noqa: BLE001
             log.exception("batch.generation_failed", error_type=entry.error_type, error=str(e))
 
-        # Top up shortfalls (LLM gave fewer items than needed, or parse failed).
         shortfall = alloc - len(produced)
         if shortfall > 0:
             fb_qs, fb_ex = _fallback_questions(

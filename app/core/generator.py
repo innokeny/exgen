@@ -1,15 +1,3 @@
-"""LLM-based exercise generation.
-
-Wraps the trained Qwen2.5-3B + LoRA model and produces raw model output.
-Parsing/validation lives in `postprocessor.py`.
-
-Concurrency: this generator serialises access to the underlying model with
-a threading.Lock. The README claims "single-tenant inference" — without
-this lock, FastAPI's default thread pool happily admits multiple parallel
-requests that race on the same CUDA context, producing device-side asserts
-under load. The lock makes the README's promise actually hold.
-"""
-
 from __future__ import annotations
 
 import os
@@ -30,10 +18,6 @@ class LLMGenerator:
     def __init__(self, manager: ModelManager, max_new_tokens: int = 2048):
         self._manager = manager
         self._max_new_tokens = max_new_tokens
-        # Single-tenant inference: serialize all model.generate calls. FastAPI
-        # dispatches sync endpoints onto a threadpool, so without this lock
-        # concurrent requests share KV-cache/attention buffers on the same
-        # CUDA model and trigger device-side asserts.
         self._lock = threading.Lock()
 
     def generate_raw(
@@ -47,7 +31,6 @@ class LLMGenerator:
         task_type: str,
         model_key: Optional[str] = None,
     ) -> tuple[str, str, int]:
-        """Run inference. Returns (raw_text, model_used, generation_time_ms)."""
         loaded = self._manager.get(model_key)
         messages = build_messages(
             user_id=user_id,
@@ -65,16 +48,10 @@ class LLMGenerator:
             try:
                 text, n_in, n_out = self._run(loaded, messages)
             except torch.cuda.OutOfMemoryError:
-                # Clear cache so the next request has a chance to succeed,
-                # but the current request is lost.
                 torch.cuda.empty_cache()
                 log.error("llm.generate.oom", user_id=user_id)
                 raise
             except RuntimeError as e:
-                # CUDA device-side asserts manifest as RuntimeError. The
-                # CUDA context is now poisoned for this process — the only
-                # recovery is a restart by the orchestrator. Surface it
-                # clearly in the log.
                 log.error(
                     "llm.generate.cuda_error",
                     user_id=user_id,
@@ -101,8 +78,6 @@ class LLMGenerator:
         tokenizer = loaded.tokenizer
         model = loaded.model
 
-        # Qwen tokenizers occasionally load without pad_token_id; fall back
-        # to eos_token_id so generate() does not blow up at the C++ layer.
         pad_token_id = tokenizer.pad_token_id
         if pad_token_id is None:
             pad_token_id = tokenizer.eos_token_id

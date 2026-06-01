@@ -1,12 +1,3 @@
-"""Run every benchmark and write a single summary file aligned with the X
-placeholders in chapter 3.
-
-The output file `results/bench/summary.json` lists each placeholder by its
-table/paragraph reference and the measured value.
-
-Usage:
-    python -m scripts.benchmarks.run_all
-"""
 from __future__ import annotations
 
 import argparse

@@ -26,7 +26,6 @@ class LoadedModel:
 
 
 class ModelManager:
-    """Lazy, thread-safe registry of loaded (base + LoRA) models."""
 
     def __init__(self, settings: Settings):
         self._settings = settings
@@ -50,10 +49,8 @@ class ModelManager:
         return self._load(key)
 
     def preload_default(self) -> None:
-        """Force the default model into VRAM so the first request is fast."""
         self._load(self._settings.model_name)
 
-    # ---- internals ----------------------------------------------------------
 
     def _load(self, model_key: str) -> LoadedModel:
         with self._load_lock:
@@ -127,7 +124,6 @@ def get_manager() -> ModelManager:
 
 
 def gpu_info() -> dict:
-    """Snapshot of CUDA availability and VRAM. Safe to call without any model loaded."""
     if not torch.cuda.is_available():
         return {"available": False, "device_count": 0}
 

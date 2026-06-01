@@ -28,16 +28,13 @@ class ParseResult:
 
 
 def _extract_json_blob(raw: str) -> Optional[str]:
-    """Pull the most likely JSON document out of a model response."""
     if not raw:
         return None
 
-    # 1. Fenced ```json ... ``` block.
     m = _FENCE_RE.search(raw)
     if m:
         return m.group(1).strip()
 
-    # 2. First balanced { ... } block.
     start = raw.find("{")
     if start == -1:
         return None
@@ -54,7 +51,6 @@ def _extract_json_blob(raw: str) -> Optional[str]:
 
 
 def parse_exercise(raw: str) -> ParseResult:
-    """Try hard to recover a valid `Exercise` from `raw`. Never raises."""
     blob = _extract_json_blob(raw)
     if blob is None:
         return ParseResult(None, "no_json_found")
@@ -77,8 +73,6 @@ def parse_exercise(raw: str) -> ParseResult:
     return ParseResult(exercise, None)
 
 
-# ---------- exercise → flat MCQ conversion (SAYIT batch endpoint) ------------
-
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 
@@ -88,7 +82,6 @@ def _slug(s: str) -> str:
 
 
 def _ensure_four_options(correct: str, options: List[str], extra_pool: List[str]) -> List[str]:
-    """Return exactly 4 options that include `correct`, padded from `extra_pool` then dashes."""
     seen = set()
     out: List[str] = []
     for o in [correct, *options]:
@@ -116,12 +109,6 @@ def exercise_to_questions(
     id_prefix: str = "q",
     max_items: Optional[int] = None,
 ) -> List[TestQuestion]:
-    """Flatten a structured exercise into MCQ-style questions for the SAYIT UI.
-
-    Each `item` in the exercise becomes one question. Options are coerced to
-    exactly 4 entries with the correct answer included. Items that can't be
-    turned into a valid MCQ (no question text, no answer) are skipped.
-    """
     task = exercise.get("task", {}) or {}
     instruction = task.get("instruction_en") or ""
     content = task.get("content_en", {}) or {}
@@ -145,7 +132,6 @@ def exercise_to_questions(
 
         text = question_en
         if context_text and (not text or "____" in text or len(text) < 20):
-            # Vocab-fill items often carry only the local cloze; prepend context.
             text = f"{context_text.strip()}\n\n{text}".strip()
 
         raw_options = list(item.get("options_en") or [])

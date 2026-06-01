@@ -1,13 +1,3 @@
-"""Bench: single-request latency distribution.
-
-Fills in таблицу 19 (3.4) — распределение задержек при одиночных запросах:
-min, median, p90, p95, p99, max, mean, stdev.
-Also estimates the linear coefficient (мс на токен) from the regression of
-latency on the number of generated tokens.
-
-Usage:
-    python -m scripts.benchmarks.latency --n 100
-"""
 from __future__ import annotations
 
 import argparse
@@ -29,12 +19,6 @@ from scripts.benchmarks._common import (
 
 
 def _count_tokens_in_exercise(body: Dict[str, Any]) -> int:
-    """Approximate the size of the generated payload in whitespace-separated tokens.
-
-    The service does not surface the exact token count, so we use the rendered
-    JSON size as a proxy. The coefficient derived from this proxy is sufficient
-    for the linear-fit reported in the thesis.
-    """
     try:
         text = json.dumps(body.get("exercise", {}), ensure_ascii=False)
     except (TypeError, ValueError):

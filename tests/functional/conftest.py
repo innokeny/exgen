@@ -17,12 +17,6 @@ class _FakeManager:
 
 
 class _FakeGenerator:
-    """Drop-in replacement for LLMGenerator. Returns deterministic JSON.
-
-    `raw_output` may be a string (same response every call) or a callable
-    that receives the kwargs of `generate_raw` and returns a string — useful
-    for the batch endpoint where we want to vary output per error category.
-    """
 
     def __init__(self, raw_output=None):
         self.raw_output = raw_output if raw_output is not None else _VALID_EXERCISE_JSON
@@ -58,7 +52,6 @@ _VALID_EXERCISE_JSON = """
 
 
 def _build_app(generator: _FakeGenerator) -> FastAPI:
-    """Build a FastAPI app without the model-loading lifespan."""
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi import Request
     from fastapi.responses import JSONResponse

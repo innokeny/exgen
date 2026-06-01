@@ -1,12 +1,3 @@
-"""Stand information for the X placeholders in section 3.4.
-
-Fills in:
-    — объём видеопамяти, ГБ
-    — число логических ядер CPU
-    — объём оперативной памяти, ГБ
-
-Run on the same host that the service container is deployed to.
-"""
 from __future__ import annotations
 
 import json

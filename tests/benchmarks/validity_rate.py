@@ -1,12 +1,3 @@
-"""Bench: structural validity rate by task type.
-
-Fills in таблицу 18 (3.4) — доля структурно валидных JSON-ответов.
-For each of the four supported task types, sends N generations and counts
-those that pass schema validation without falling back to the template path.
-
-Usage:
-    python -m scripts.benchmarks.validity_rate --n 100
-"""
 from __future__ import annotations
 
 import argparse

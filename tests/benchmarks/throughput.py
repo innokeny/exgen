@@ -1,12 +1,3 @@
-"""Bench: throughput at different concurrency levels.
-
-Fills in таблицу 20 (3.4) — пропускная способность при различных уровнях
-параллельной нагрузки (1, 2, 4, 8, 16). Also reports the saturation point —
-the concurrency level beyond which throughput stops growing.
-
-Usage:
-    python -m scripts.benchmarks.throughput --requests 60
-"""
 from __future__ import annotations
 
 import argparse
@@ -67,7 +58,6 @@ def measure_one_level(base_url: str, concurrency: int, total_requests: int, time
 
 
 def find_saturation(rows: List[Dict[str, Any]], threshold_pct: float = 5.0) -> int:
-    """Smallest concurrency at which RPS gain over previous level is below threshold."""
     for i in range(1, len(rows)):
         prev_rps = rows[i - 1]["rps"]
         cur_rps = rows[i]["rps"]

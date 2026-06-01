@@ -92,8 +92,6 @@ def generate(
             exercise=parsed.exercise,
         )
 
-    # LLM produced unparseable output → fall back to a template exercise so the
-    # caller still gets something usable.
     log.warning(
         "llm.parse.fallback",
         reason=parsed.error,

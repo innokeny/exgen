@@ -1,15 +1,3 @@
-"""Bench: per-user resource projection.
-
-Fills in таблицу 23 (3.5) — расчётные показатели на одного активного
-пользователя в сутки. Берёт измеренное среднее время инференса одного
-пакетного запроса и среднее энергопотребление графического ускорителя
-во время генерации, после чего масштабирует их на типовой профиль
-использования платформы (число пакетных запросов в сутки × число
-упражнений в пакете).
-
-Usage:
-    python -m scripts.benchmarks.per_user --requests-per-day 4 --batch-size 9 --runs 20
-"""
 from __future__ import annotations
 
 import argparse
@@ -32,7 +20,6 @@ from scripts.benchmarks._common import (
 
 
 def _gpu_power_w() -> float | None:
-    """Read instantaneous GPU power draw via nvidia-smi (single GPU)."""
     try:
         out = subprocess.run(
             ["nvidia-smi", "--query-gpu=power.draw", "--format=csv,noheader,nounits"],

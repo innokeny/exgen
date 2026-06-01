@@ -1,26 +1,3 @@
-"""Build a summary table from the per-level Locust CSV reports.
-
-Reads ``results/concurrency_<N>/locust_stats.csv`` for every concurrency level
-that has been run and emits a single Markdown table (to stdout and to
-``results/summary.md``) plus a CSV equivalent (``results/summary.csv``).
-
-The summary holds, per concurrency level:
-
-* total_requests   — sum of successful and failed requests
-* success_rate     — share of requests that locust counted as successful
-                     (locust's "success" already accounts for the HTTP-200 +
-                     non-empty-exercise check enforced in locustfile.py)
-* RPS              — measured throughput (requests / second)
-* latency_p50/p95/p99 — milliseconds; sourced from locust's percentile columns
-* fallback_rate    — share of *successful* responses that came from the
-                     template-engine safety net (LLM output unparseable);
-                     this is loaded from the JSON sidecar dumped by the
-                     locustfile's ``quitting`` hook.
-
-Locust 2.x writes the per-endpoint rows and one aggregate row named
-``Aggregated``. This script reads the aggregate row only.
-"""
-
 from __future__ import annotations
 
 import csv
@@ -29,8 +6,6 @@ from pathlib import Path
 
 RESULTS_DIR = Path(__file__).resolve().parents[2] / "results" / "locust"
 
-# Locust 2.x stats CSV columns we depend on. The 50/95/99 columns are written
-# as floats in milliseconds for the response-time percentiles.
 COL_NAME = "Name"
 COL_REQS = "Request Count"
 COL_FAILS = "Failure Count"
@@ -66,7 +41,6 @@ def _read_aggregate_row(stats_csv: Path) -> dict[str, str] | None:
 
 
 def _read_fallback_stats(run_dir: Path) -> tuple[int, int, float]:
-    """Return (ok, fallback, fallback_rate). All zeros if sidecar is missing."""
     sidecar = run_dir / "locust_fallbacks.json"
     if not sidecar.exists():
         return 0, 0, 0.0

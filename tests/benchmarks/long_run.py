@@ -1,13 +1,3 @@
-"""Bench: long-running stability.
-
-Confirms the X-hour figure used in the longevity paragraph of section 3.4
-(сервис непрерывно обрабатывал запросы в течение X часов под штатной
-нагрузкой). Sustains the baseline RPS for the configured duration and reports
-whether degradation, errors or VRAM growth were observed.
-
-Usage:
-    python -m scripts.benchmarks.long_run --hours 8 --baseline 2
-"""
 from __future__ import annotations
 
 import argparse

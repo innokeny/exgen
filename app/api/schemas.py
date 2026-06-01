@@ -5,8 +5,6 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 
-# ---------- Exercise payload (mirrors the JSON the model is trained to emit) ----------
-
 class ExerciseItem(BaseModel):
     model_config = ConfigDict(extra="allow")
 
@@ -39,8 +37,6 @@ class Exercise(BaseModel):
     task: ExerciseTask
 
 
-# ---------- /api/v1/generate ----------
-
 TaskType = Literal[
     "grammar_choice",
     "transformation",
@@ -71,8 +67,6 @@ class GenerateResponse(BaseModel):
     fallback_reason: Optional[str] = None
 
 
-# ---------- /api/v1/generate/template ----------
-
 TemplateMethod = Literal["fill_in_blanks", "reconstruction"]
 
 
@@ -89,8 +83,6 @@ class TemplateResponse(BaseModel):
     generation_time_ms: int
     exercise: Exercise
 
-
-# ---------- /health ----------
 
 class GPUInfo(BaseModel):
     available: bool
@@ -109,12 +101,6 @@ class HealthResponse(BaseModel):
     gpu: GPUInfo
 
 
-# ---------- /api/v1/generate/batch (SAYIT integration) ----------
-# Input shape mirrors
-# the UserErrorProfile rows produced by the SAYIT backend; output shape mirrors
-# what the /tests/personalized/start endpoint already passes to the frontend.
-
-
 class ErrorExample(BaseModel):
     original: str
     corrected: str
@@ -129,14 +115,13 @@ class ErrorProfileEntry(BaseModel):
 
 class BatchGenerateRequest(BaseModel):
     user_id: str = "anonymous"
-    language_level: str = "B1"  # CEFR A1..C2
+    language_level: str = "B1"
     error_profile: List[ErrorProfileEntry]
     max_questions: int = Field(default=15, ge=1, le=50)
     model: Optional[str] = None
 
 
 class TestQuestion(BaseModel):
-    """Flat MCQ shape consumed directly by the SAYIT tests UI."""
     id: str
     error_type: str
     text: str
@@ -150,13 +135,9 @@ class BatchGenerateResponse(BaseModel):
     model_used: str
     generation_time_ms: int
     questions: List[TestQuestion]
-    # Full exercises (8-14 items, richer types) — kept optional for a future,
-    # extended SAYIT UI; current frontend ignores this field.
     exercises_full: List[Dict[str, Any]] = Field(default_factory=list)
     fallback_categories: List[str] = Field(default_factory=list)
 
-
-# ---------- /api/v1/models ----------
 
 class ModelMetrics(BaseModel):
     tr_composite: Optional[float] = None
@@ -179,8 +160,6 @@ class ModelsResponse(BaseModel):
     supported_task_types: List[str]
     fallback_methods: List[str]
 
-
-# ---------- Error response ----------
 
 class ErrorResponse(BaseModel):
     status: Literal["error"] = "error"

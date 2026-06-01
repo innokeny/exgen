@@ -1,8 +1,3 @@
-"""Shared utilities for benchmark scripts.
-
-The benchmarks target a running container of the exercise generator service
-and aggregate the values that fill the X placeholders in chapter 3 tables.
-"""
 from __future__ import annotations
 
 import json
@@ -108,7 +103,6 @@ def summarize(latencies_ms: List[float]) -> LatencySummary:
 
 
 def post_generate(client: httpx.Client, base_url: str, payload: Optional[Dict[str, Any]] = None) -> tuple[int, Dict[str, Any], float]:
-    """POST to /api/v1/generate. Returns (status, body, elapsed_ms)."""
     body = payload if payload is not None else SAMPLE_SINGLE_PAYLOAD
     t0 = time.perf_counter()
     r = client.post(f"{base_url}/api/v1/generate", json=body)
@@ -131,7 +125,6 @@ def post_batch(client: httpx.Client, base_url: str, payload: Optional[Dict[str, 
 
 
 def warmup(base_url: str, n: int = 3, timeout: float = DEFAULT_TIMEOUT) -> int:
-    """Send `n` warm-up requests so model weights and caches are hot."""
     with httpx.Client(timeout=timeout) as c:
         ok = 0
         for _ in range(n):

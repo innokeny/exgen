@@ -1,5 +1,3 @@
-"""Unit tests for postprocessor + template engine. No GPU/model required."""
-
 from app.core.postprocessor import parse_exercise
 from app.core.template_engine import (
     build_template_exercise,

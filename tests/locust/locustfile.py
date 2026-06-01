@@ -1,19 +1,3 @@
-"""Locust scenario for the SAYIT Exercise Generator service.
-
-Each virtual user repeatedly POSTs a randomly chosen payload from
-``payloads.json`` to ``/api/v1/generate`` and counts a request as a success
-only when the service answers with HTTP 200 *and* the response body contains
-a non-empty ``exercise`` field. The number of responses whose ``status`` is
-``"fallback"`` (i.e. the LLM output was unparseable and the template engine
-served as a safety net) is tracked separately and reported on shutdown — this
-distinguishes "successful generation" from "successful fallback" while keeping
-the latter out of the failure count, since both shapes are advertised as
-usable by the API contract.
-
-Target host is taken from the standard Locust ``--host`` flag or the
-``TARGET_HOST`` environment variable (default: ``http://localhost:8000``).
-"""
-
 from __future__ import annotations
 
 import json
@@ -41,7 +25,6 @@ PAYLOADS: list[dict[str, Any]] = _load_payloads()
 
 
 class _FallbackCounter:
-    """Thread-safe tally of fallback responses, broken down by reason."""
 
     def __init__(self) -> None:
         self._lock = Lock()
@@ -76,8 +59,6 @@ FALLBACKS = _FallbackCounter()
 
 
 class GenerateUser(HttpUser):
-    # Aggressive load: users hammer the endpoint with minimal think time so
-    # the server, not the client, is the bottleneck.
     wait_time = between(0.0, 0.2)
     host = os.environ.get("TARGET_HOST", "http://localhost:8000")
 
@@ -131,8 +112,6 @@ def _report_fallbacks(environment, **_kwargs) -> None:  # noqa: ANN001
         ):
             print(f"    - {reason}: {count}")
 
-    # Persist a machine-readable copy next to the locust CSVs so
-    # parse_results.py can fold it into the final summary table.
     csv_prefix = os.environ.get("LOCUST_CSV_PREFIX")
     if csv_prefix:
         out_path = Path(f"{csv_prefix}_fallbacks.json")

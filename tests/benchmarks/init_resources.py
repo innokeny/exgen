@@ -1,16 +1,3 @@
-"""Bench: VRAM consumption and initialization timing.
-
-Fills in таблицу 22 (3.5):
-    — VRAM after container start (before model load)
-    — VRAM after model load
-    — VRAM in steady state under load
-    — cold-start time (container start → ready)
-    — first-request latency after restart
-    — steady-state latency
-
-Usage:
-    python -m scripts.benchmarks.init_resources --container sayit-exgen
-"""
 from __future__ import annotations
 
 import argparse

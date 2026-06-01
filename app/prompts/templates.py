@@ -120,7 +120,6 @@ def build_messages(
     llm_confidence: float,
     task_type: str,
 ) -> list[dict]:
-    """Render chat-template messages for the model."""
     user_prompt = USER_PROMPT_TEMPLATE.format(
         user_id=user_id,
         message_content=message_content,

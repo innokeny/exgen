@@ -1,22 +1,3 @@
-"""
-Cross-validate Locust and AIPerf measurements.
-
-Reads:
-    ../load/results/latency_stats.csv         single-user Locust run
-    ../load/results/throughput_stats_history.csv  Locust concurrency sweep
-    reports/aiperf-c{1,2,4,8,16}/aiperf.json  AIPerf runs
-
-Writes:
-    reports/cross_validation.md               for the thesis appendix
-    reports/cross_validation.csv              raw side-by-side numbers
-
-The thesis claim that the two tools agree should hold: Locust measures
-end-to-end HTTP latency from a Python client, AIPerf measures the same
-through a Triton-derived async benchmark. If they diverge by more than
-~10% on p99 latency, something is wrong (most likely the shim adds
-non-trivial overhead).
-"""
-
 from __future__ import annotations
 
 import csv
@@ -36,14 +17,11 @@ def _read_aiperf(concurrency: int) -> dict | None:
     if not path.exists():
         return None
     data = json.loads(path.read_text(encoding="utf-8"))
-    # AIPerf JSON layout has a top-level "metrics" or "results" mapping
-    # depending on the version. Handle both.
     metrics = data.get("metrics") or data.get("results") or data
     return metrics
 
 
 def _aiperf_metric(metrics: dict | None, key: str, stat: str = "p50") -> float | None:
-    """Best-effort extraction across AIPerf / GenAI-Perf layout variants."""
     if not metrics:
         return None
     candidates = [
@@ -61,7 +39,6 @@ def _aiperf_metric(metrics: dict | None, key: str, stat: str = "p50") -> float |
 
 
 def _locust_single_user() -> dict:
-    """Latency stats from the single-user Locust run."""
     f = LOCUST_DIR / "latency_stats.csv"
     if not f.exists():
         return {}
@@ -80,7 +57,6 @@ def _locust_single_user() -> dict:
 
 
 def _locust_throughput_sweep() -> dict[int, dict]:
-    """Per-stage stats for the concurrency sweep."""
     f = LOCUST_DIR / "throughput_stats_history.csv"
     if not f.exists():
         return {}
@@ -162,7 +138,6 @@ def main() -> int:
     for c in (2, 4, 8, 16):
         rows.append(_row(f"{c} клиентов", sweep.get(c, {}), _read_aiperf(c)))
 
-    # Markdown.
     md = ["# Кросс-валидация Locust ↔ AIPerf",
           "",
           "Независимые замеры одной и той же системы двумя инструментами. ",
@@ -174,7 +149,6 @@ def main() -> int:
     (AIPERF_DIR / "cross_validation.md").write_text("\n".join(md) + "\n",
                                                     encoding="utf-8")
 
-    # CSV.
     with open(AIPERF_DIR / "cross_validation.csv", "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(headers)
